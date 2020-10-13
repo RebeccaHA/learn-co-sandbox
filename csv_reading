@@ -1,0 +1,97 @@
+class Person
+  attr_accessor :name, :age, :company
+end
+ 
+csv_data = "Elon Musk, 45, Tesla
+Mark Zuckerberg, 32, Facebook
+Martha Stewart, 74, MSL"
+ 
+rows = csv_data.split("\n")
+people = rows.collect do |row|
+  data = row.split(", ")
+  name = data[0]
+  age = data[1]
+  company = data[2]
+  person = Person.new
+  person.name = name
+  person.age = age
+  person.company = company
+  person
+end
+
+but the you can make it even more abstracted;
+
+class Person
+  attr_accessor :name, :age, :company
+ 
+  def self.new_from_csv(csv_data)
+    # Split the CSV data into an array of individual rows.
+    rows = csv_data.split("\n")
+    # For each row, let's collect a Person instance based on the data
+    people = rows.collect do |row|
+      # Split the row into 3 parts, name, age, company, at the ", "
+      data = row.split(", ")
+      name = data[0]
+      age = data[1]
+      company = data[2]
+ 
+      # Make a new instance
+      person = self.new # self refers to the Person class. This is Person.new
+      # Set the properties on the person.
+      person.name = name
+      person.age = age
+      person.company = company
+      # Return the person to collect
+      person
+    end
+    # Return the array of newly created people.
+    people
+  end
+end
+
+
+you can also operate in class methods, if you have a csv and you needed to capitalise names\
+
+class Person
+  attr_accessor :name
+  @@all = []
+  def self.all
+    @@all
+  end
+ 
+  def initialize(name)
+    @name = name
+    @@all << self
+  end
+ 
+  def self.normalize_names
+    self.all.each do |person|
+      person.name = person.name.split(" ").collect{|w| w.capitalize}.join(" ")
+    end
+  end
+end
+
+because it is so complex we could add it to the person class itself
+
+class Person
+  attr_accessor :name
+  @@all = []
+  def self.all
+    @@all
+  end
+ 
+  def initialize(name)
+    @name = name
+    @@all << self
+  end
+ 
+  def normalize_name
+    self.name.split(" ").collect{|w| w.capitalize}.join(" ")
+  end
+ 
+  def self.normalize_names
+    self.all.each do |person|
+      person.name = person.normalize_name
+    end
+  end
+end
